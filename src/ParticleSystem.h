@@ -3,6 +3,9 @@
 #include "VertexBuffer.h"
 
 //TODO - AOS vs SOA and benchmark?
+static float particle_speed = 100.0f;
+static float particle_rotation = 10.0f;
+static float particle_size = 10.0f;
 
 template <class P>
 struct CParticle
@@ -14,11 +17,12 @@ struct CParticle
 
 		m_Pos = pos;
 
-		float s = 100.f;
-		m_Velocity = P(randFloat(-s, s), randFloat(-s, s));
-
+		m_Velocity = randVec2f() * particle_speed;
+		
 		m_Rotation = randFloat(-(float)M_PI, (float)M_PI);
-		m_AngularVelocity = randFloat(-(float)M_PI, (float)M_PI);
+
+		float f = (randInt(0, 2) - 0.5f) * 2.0f;
+		m_AngularVelocity = randFloat((float)M_PI * 0.5f, (float)M_PI) * particle_rotation * f;
 	}
 
 	void	Update(float dt)
@@ -32,9 +36,10 @@ struct CParticle
 		m_Life -= dt;
 	}
 
+
 	float GetSize()
 	{
-		return (float)sin((m_Life/m_TotalLifeTime) * M_PI);
+		return (float)sin((m_Life/m_TotalLifeTime) * M_PI) * particle_size;
 	}
 
 	ci::ColorA GetColor()
@@ -44,10 +49,14 @@ struct CParticle
 
 	void GetVerts(P& tl, P& tr, P& bl, P& br, float size)
 	{
-		tl = m_Pos + P(cos(m_Rotation*1.0f), -sin(m_Rotation*1.0f)) * size;
-		tr = m_Pos + P(cos(m_Rotation*2.0f), -sin(m_Rotation*2.0f)) * size;
-		br = m_Pos + P(cos(m_Rotation*3.0f), -sin(m_Rotation*2.0f)) * size;
-		bl = m_Pos + P(cos(m_Rotation*4.0f), -sin(m_Rotation*4.0f)) * size;
+		//tl = m_Pos + P(cos(m_Rotation*1.0f), -sin(m_Rotation*1.0f)) * GetSize();
+		//tr = m_Pos + P(cos(m_Rotation*2.0f), -sin(m_Rotation*2.0f)) * GetSize();
+		//br = m_Pos + P(cos(m_Rotation*3.0f), -sin(m_Rotation*2.0f)) * GetSize();
+		//bl = m_Pos + P(cos(m_Rotation*4.0f), -sin(m_Rotation*4.0f)) * GetSize();
+		tl = m_Pos + P(cos(m_Rotation+M_PI*0.0f), -sin(m_Rotation+M_PI*0.0f)) * GetSize();
+		tr = m_Pos + P(cos(m_Rotation+M_PI*0.5f), -sin(m_Rotation+M_PI*0.5f)) * GetSize();
+		br = m_Pos + P(cos(m_Rotation+M_PI*1.0f), -sin(m_Rotation+M_PI*1.0f)) * GetSize();
+		bl = m_Pos + P(cos(m_Rotation+M_PI*1.5f), -sin(m_Rotation+M_PI*1.5f)) * GetSize();
 	}
 
 	P		m_Pos;
@@ -88,15 +97,15 @@ public:
 
 			//add geometry
 			P centre = mp_Particles[i].m_Pos;
-			float w = 10.0f * mp_Particles[i].GetSize();
-			float h = 10.0f * mp_Particles[i].GetSize();
+			float w = mp_Particles[i].GetSize();
+			float h = mp_Particles[i].GetSize();
 
 			P tl = centre + P(-w,-h);
 			P tr = centre + P(-w,h);
 			P bl = centre + P(w,-h);
 			P br = centre + P(w,h);
 
-			mp_Particles[i].GetVerts(tl, tr, bl, br, 10.0f * mp_Particles[i].GetSize());
+			mp_Particles[i].GetVerts(tl, tr, bl, br, mp_Particles[i].GetSize());
 
 			ColorA col = mp_Particles[i].GetColor();
 
