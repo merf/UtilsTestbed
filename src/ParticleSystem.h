@@ -3,9 +3,9 @@
 #include "VertexBuffer.h"
 
 //TODO - AOS vs SOA and benchmark?
-static float particle_speed = 100.0f;
-static float particle_rotation = 10.0f;
-static float particle_size = 10.0f;
+static float particle_speed = 200.0f;
+static float particle_rotation = 5.0f;
+static float particle_size = 20.0f;
 
 template <class P>
 struct CParticle
@@ -39,7 +39,13 @@ struct CParticle
 
 	float GetSize()
 	{
+		//return (1.0f - m_Life/m_TotalLifeTime) * particle_size;
 		return (float)sin((m_Life/m_TotalLifeTime) * M_PI) * particle_size;
+	}
+
+	float GetAngle()
+	{
+		return m_Rotation;
 	}
 
 	ci::ColorA GetColor()
@@ -97,23 +103,28 @@ public:
 
 			//add geometry
 			P centre = mp_Particles[i].m_Pos;
-			float w = mp_Particles[i].GetSize();
-			float h = mp_Particles[i].GetSize();
 
-			P tl = centre + P(-w,-h);
-			P tr = centre + P(-w,h);
-			P bl = centre + P(w,-h);
-			P br = centre + P(w,h);
+			//float w = mp_Particles[i].GetSize();
+			//float h = mp_Particles[i].GetSize();
 
-			mp_Particles[i].GetVerts(tl, tr, bl, br, mp_Particles[i].GetSize());
+			//P tl = centre + P(-w,-h);
+			//P tr = centre + P(-w,h);
+			//P bl = centre + P(w,-h);
+			//P br = centre + P(w,h);
+
+			//mp_Particles[i].GetVerts(tl, tr, bl, br, mp_Particles[i].GetSize());
 
 			ColorA col = mp_Particles[i].GetColor();
+			float angle = mp_Particles[i].GetAngle();
+			float size = mp_Particles[i].GetSize();
 
-			mp_VertexBuffer->AddQuad(
-				V(tl, col, ci::Vec2f(0,0)),
-				V(tr, col, ci::Vec2f(1,0)),
-				V(bl, col, ci::Vec2f(0,1)),
-				V(br, col, ci::Vec2f(1,1)));
+			mp_VertexBuffer->AddSprite(centre, size, Rectf(0,0,1,1), col, angle);
+
+			//mp_VertexBuffer->AddQuad(
+			//	V(tl, col, ci::Vec2f(0,0)),
+			//	V(tr, col, ci::Vec2f(1,0)),
+			//	V(bl, col, ci::Vec2f(0,1)),
+			//	V(br, col, ci::Vec2f(1,1)));
 		}
 	}
 

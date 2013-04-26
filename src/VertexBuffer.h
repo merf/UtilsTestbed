@@ -22,6 +22,8 @@ class vPosition
 
 	P m_Position;
 
+	typedef P PositionType;
+
 	static void Bind()
 	{
 		const GLuint P_ELEMENTS = sizeof(P)/sizeof(float);
@@ -51,10 +53,13 @@ template <class P, class C>
 struct vPositionColor
 {
 	vPositionColor() : m_Position(P::zero()), m_Color(C::white()) {}
-	vPositionColor(P& p, C& col) : m_Position(p), m_Color(col) {}
+	vPositionColor(const P& p, const C& col) : m_Position(p), m_Color(col) {}
 
 	P m_Position;
 	C m_Color;
+
+	typedef P PositionType;
+	typedef C ColorType;
 
 	static void Bind()
 	{
@@ -90,10 +95,13 @@ template <class P, class TC>
 struct vPositionTexcoord
 {
 	vPositionTexcoord() : m_Position(P::zero()), m_TexCoord(TC::zero()) {}
-	vPositionTexcoord(P& p, TC& tc) : m_Position(p), m_TexCoord(tc) {}
+	vPositionTexcoord(const P& p, const TC& tc) : m_Position(p), m_TexCoord(tc) {}
 
 	P m_Position;
 	TC m_TexCoord;
+
+	typedef P PositionType;
+	typedef TC TexccordType;
 
 	static void Bind()
 	{
@@ -128,11 +136,15 @@ template <class P, class C, class TC>
 struct vPositionColorTexcoord
 {
 	vPositionColorTexcoord() : m_Position(P::zero()), m_TexCoord(TC::zero()), m_Color(ColorA::white()) {}
-	vPositionColorTexcoord(P& p, C& c, TC& tc) : m_Position(p), m_Color(c), m_TexCoord(tc) {}
+	vPositionColorTexcoord(const P& p, const C& c, const TC& tc) : m_Position(p), m_Color(c), m_TexCoord(tc) {}
 
 	P m_Position;
 	C m_Color;
 	TC m_TexCoord;
+
+	typedef P PositionType;
+	typedef C ColorType;
+	typedef TC TexccordType;
 
 	static void Bind()
 	{
@@ -218,7 +230,7 @@ public:
 		mp_Vertices[m_CurrVertex++] = v2;
 	}
 
-	void AddQuad(T v0, T v1, T v2, T v3)
+	void AddQuad(const T& v0, const T& v1, const T& v2, const T& v3)
 	{
 		//if there isn't room in the buffer then draw what we've got
 		if(m_CurrVertex + 6 > m_MaxVertices)
@@ -229,6 +241,21 @@ public:
 		AddTriangle(v0, v1, v2);
 		AddTriangle(v2, v1, v3);
 	}
+
+	//TODO - how do we get the position template type out of the vertex template?
+	void AddSprite(typename T::PositionType centre, float size, const ci::Rectf& tc, const ci::ColorA& col, float angle = 0.0f)
+	{
+		T::PositionType tl = centre + T::PositionType((float)cos(angle+M_PI*0.0f), -(float)sin(angle+M_PI*0.0f)) * size;
+		T::PositionType tr = centre + T::PositionType((float)cos(angle+M_PI*0.5f), -(float)sin(angle+M_PI*0.5f)) * size;
+		T::PositionType br = centre + T::PositionType((float)cos(angle+M_PI*1.0f), -(float)sin(angle+M_PI*1.0f)) * size;
+		T::PositionType bl = centre + T::PositionType((float)cos(angle+M_PI*1.5f), -(float)sin(angle+M_PI*1.5f)) * size;
+
+		AddQuad(T(tl, col, tc.getUpperLeft()),
+				T(tr, col, tc.getUpperRight()),
+				T(bl, col, tc.getLowerLeft()),
+				T(br, col, tc.getLowerRight()));
+	}
+
 
 private:
 	GLuint		m_VertexBufferID;
