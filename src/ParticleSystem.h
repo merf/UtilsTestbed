@@ -36,7 +36,6 @@ struct CParticle
 		m_Life -= dt;
 	}
 
-
 	float GetSize()
 	{
 		//return (1.0f - m_Life/m_TotalLifeTime) * particle_size;
@@ -51,18 +50,6 @@ struct CParticle
 	ci::ColorA GetColor()
 	{
 		return lerp(ColorA(1.0f, 1.0f, 0.0f, 0.0f), ColorA(1.0f, 0.0f, 0.0f, 1.0f), m_Life/m_TotalLifeTime);
-	}
-
-	void GetVerts(P& tl, P& tr, P& bl, P& br, float size)
-	{
-		//tl = m_Pos + P(cos(m_Rotation*1.0f), -sin(m_Rotation*1.0f)) * GetSize();
-		//tr = m_Pos + P(cos(m_Rotation*2.0f), -sin(m_Rotation*2.0f)) * GetSize();
-		//br = m_Pos + P(cos(m_Rotation*3.0f), -sin(m_Rotation*2.0f)) * GetSize();
-		//bl = m_Pos + P(cos(m_Rotation*4.0f), -sin(m_Rotation*4.0f)) * GetSize();
-		tl = m_Pos + P(cos(m_Rotation+M_PI*0.0f), -sin(m_Rotation+M_PI*0.0f)) * GetSize();
-		tr = m_Pos + P(cos(m_Rotation+M_PI*0.5f), -sin(m_Rotation+M_PI*0.5f)) * GetSize();
-		br = m_Pos + P(cos(m_Rotation+M_PI*1.0f), -sin(m_Rotation+M_PI*1.0f)) * GetSize();
-		bl = m_Pos + P(cos(m_Rotation+M_PI*1.5f), -sin(m_Rotation+M_PI*1.5f)) * GetSize();
 	}
 
 	P		m_Pos;
@@ -103,28 +90,11 @@ public:
 
 			//add geometry
 			P centre = mp_Particles[i].m_Pos;
-
-			//float w = mp_Particles[i].GetSize();
-			//float h = mp_Particles[i].GetSize();
-
-			//P tl = centre + P(-w,-h);
-			//P tr = centre + P(-w,h);
-			//P bl = centre + P(w,-h);
-			//P br = centre + P(w,h);
-
-			//mp_Particles[i].GetVerts(tl, tr, bl, br, mp_Particles[i].GetSize());
-
 			ColorA col = mp_Particles[i].GetColor();
 			float angle = mp_Particles[i].GetAngle();
 			float size = mp_Particles[i].GetSize();
 
 			mp_VertexBuffer->AddSprite(centre, size, Rectf(0,0,1,1), col, angle);
-
-			//mp_VertexBuffer->AddQuad(
-			//	V(tl, col, ci::Vec2f(0,0)),
-			//	V(tr, col, ci::Vec2f(1,0)),
-			//	V(bl, col, ci::Vec2f(0,1)),
-			//	V(br, col, ci::Vec2f(1,1)));
 		}
 	}
 
